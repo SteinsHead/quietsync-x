@@ -207,21 +207,21 @@
 
     <dialog id="sourceDialog">
       <form method="dialog" id="sourceForm">
-        <div class="dialog-head"><div><span class="kicker">NEW SOURCE</span><h2>添加远程词库</h2></div><button value="cancel" class="icon-button" aria-label="关闭">×</button></div>
+        <div class="dialog-head"><div><span class="kicker">NEW SOURCE</span><h2>添加远程词库</h2></div><button type="button" id="closeSourceDialogButton" class="icon-button" aria-label="关闭">×</button></div>
         <label class="field"><span>名称</span><input id="sourceName" maxlength="80" placeholder="例如：社区反诈词库" required></label>
         <label class="field"><span>TXT / JSON URL</span><input id="sourceUrl" type="url" placeholder="https://raw.githubusercontent.com/…/keywords.txt" required></label>
         <p class="dialog-note">仅支持 HTTPS。QuietSync 只请求该域名的读取权限，且不会附带 Cookie、凭据或来源页面信息。</p>
-        <div class="dialog-actions"><button value="cancel" class="button button-ghost">取消</button><button type="submit" value="default" class="button button-primary">添加并拉取</button></div>
+        <div class="dialog-actions"><button type="button" id="cancelSourceDialogButton" class="button button-ghost">取消</button><button type="submit" value="default" class="button button-primary">添加并拉取</button></div>
       </form>
     </dialog>
     <dialog id="syncDialog">
       <form method="dialog" id="syncForm">
-        <div class="dialog-head"><div><span class="kicker">SYNC PREVIEW</span><h2>确认写入 X</h2></div><button value="cancel" class="icon-button" aria-label="关闭">×</button></div>
+        <div class="dialog-head"><div><span class="kicker">SYNC PREVIEW</span><h2>确认写入 X</h2></div><button type="button" id="closeSyncDialogButton" class="icon-button" aria-label="关闭">×</button></div>
         <div class="sync-preview-stats"><div><strong id="previewCount">0</strong><span>新增词</span></div><div><strong id="previewTime">—</strong><span>预计用时</span></div><div><strong>ADD</strong><span>只增不删</span></div></div>
         <div class="preview-categories" id="previewCategories"></div>
         <div class="preview-list" id="previewList"></div>
         <p class="dialog-note">QuietSync 将打开 X Muted words 并逐条保存。可随时从 X 页面浮窗或审核台停止；已完成部分不会回滚。</p>
-        <div class="dialog-actions"><button value="cancel" class="button button-ghost">返回审核</button><button type="button" class="button button-primary" id="confirmSyncButton">开始同步</button></div>
+        <div class="dialog-actions"><button type="button" id="cancelSyncDialogButton" class="button button-ghost">返回审核</button><button type="button" class="button button-primary" id="confirmSyncButton">开始同步</button></div>
       </form>
     </dialog>
     <div class="toast" id="toast" role="status"></div>

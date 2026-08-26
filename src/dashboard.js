@@ -22,7 +22,8 @@ const elements = Object.fromEntries([
   "onboardingBanner", "exploreSourcesButton", "cancelSyncButton", "subscribeCatalogButton",
   "autoSyncMinConfidence", "exportBackupButton", "exportWordsButton", "syncDialog", "syncForm",
   "previewCount", "previewTime", "previewCategories", "previewList", "confirmSyncButton",
-  "viewSubtitle", "runtimeMode", "themeToggle", "themeIcon", "themeLabel"
+  "viewSubtitle", "runtimeMode", "themeToggle", "themeIcon", "themeLabel",
+  "closeSourceDialogButton", "cancelSourceDialogButton", "closeSyncDialogButton", "cancelSyncDialogButton"
 ].map((id) => [id, document.getElementById(id)]));
 
 elements.runtimeMode.textContent = extensionMode ? "仅本地处理" : "界面预览模式";
@@ -53,6 +54,36 @@ elements.confirmSyncButton.addEventListener("click", executeSync);
 elements.exportBackupButton.addEventListener("click", exportBackup);
 elements.exportWordsButton.addEventListener("click", exportWords);
 elements.themeToggle.addEventListener("click", toggleTheme);
+elements.closeSourceDialogButton.addEventListener("click", closeSourceDialog);
+elements.cancelSourceDialogButton.addEventListener("click", closeSourceDialog);
+elements.closeSyncDialogButton.addEventListener("click", closeSyncDialog);
+elements.cancelSyncDialogButton.addEventListener("click", closeSyncDialog);
+elements.sourceDialog.addEventListener("close", () => elements.sourceForm.reset());
+elements.syncDialog.addEventListener("close", () => { previewQueue = []; });
+elements.sourceDialog.addEventListener("cancel", (event) => {
+  event.preventDefault();
+  closeSourceDialog();
+});
+elements.syncDialog.addEventListener("cancel", (event) => {
+  event.preventDefault();
+  closeSyncDialog();
+});
+elements.sourceDialog.addEventListener("click", (event) => {
+  if (event.target === elements.sourceDialog) closeSourceDialog();
+});
+elements.syncDialog.addEventListener("click", (event) => {
+  if (event.target === elements.syncDialog) closeSyncDialog();
+});
+document.addEventListener("keydown", (event) => {
+  if (event.key !== "Escape") return;
+  if (elements.sourceDialog.open) {
+    event.preventDefault();
+    closeSourceDialog();
+  } else if (elements.syncDialog.open) {
+    event.preventDefault();
+    closeSyncDialog();
+  }
+});
 
 if (extensionMode) {
   chrome.runtime.onMessage.addListener((message) => {
@@ -413,6 +444,14 @@ function openSyncPreview() {
     elements.previewList.appendChild(more);
   }
   elements.syncDialog.showModal();
+}
+
+function closeSourceDialog() {
+  elements.sourceDialog.close("cancel");
+}
+
+function closeSyncDialog() {
+  elements.syncDialog.close("cancel");
 }
 
 async function executeSync() {

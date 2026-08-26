@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.5.1 — 2026-08-26
+
+- Fixed the remote-source dialog treating Close and Cancel as form submissions.
+- Made Close, Cancel, Escape, and backdrop clicks bypass required-field validation and exit reliably.
+- Reset unfinished source fields after the dialog closes.
+- Applied the same explicit close behavior to the sync-preview dialog.
+
 ## 0.5.0 — 2026-08-26
 
 - Rebuilt the dashboard around the mute-list review workflow instead of a portal-style card grid.
