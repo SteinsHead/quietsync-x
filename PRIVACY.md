@@ -27,6 +27,12 @@ Adding a remote source requests access only to that HTTPS origin. Dictionary fet
 
 QuietSync does not read browser cookies or passwords and does not call a private X API. Its content script is injected only on X's Muted words settings route and uses the visible form. It reads and changes only the controls needed to add reviewed words.
 
+Because QuietSync parses user-chosen dictionary responses and operates the visible X settings form, Chrome Web Store disclosures classify this locally handled information as website content. QuietSync does not collect browsing history or monitor activity on other pages.
+
+## Chrome Web Store Limited Use
+
+QuietSync uses handled information only to provide or improve its single purpose: reviewing mute-list data locally and syncing terms approved by the user to X's native Muted words. It does not sell user data, use it for advertising or credit decisions, transfer it for an unrelated purpose, or allow the developer or other people to read it.
+
 ## Removal
 
 Removing the extension through Chrome removes its local extension storage. Export a backup first if the data should be retained.
