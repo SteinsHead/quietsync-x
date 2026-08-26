@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.5.0 — 2026-08-26
+
+- Rebuilt the dashboard around the mute-list review workflow instead of a portal-style card grid.
+- Replaced the fixed sidebar with a compact top app bar and quiet, familiar tabs.
+- Collapsed four KPI cards into one summary strip and moved the review table into the first viewport.
+- Removed the decorative sync pipeline, category chart, gradients, grid texture, glass effects, and heavy shadows.
+- Turned remote sources into dense list rows and settings into a calm single-column form.
+- Restyled the popup and dark mode to match the same restrained visual system.
+- Replaced every README and store screenshot with fresh local-preview captures containing synthetic data only.
+
 ## 0.4.0 — 2026-08-26
 
 - Replaced the default black-and-green interface with a fresh blue-and-white visual system.
