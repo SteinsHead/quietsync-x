@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.3.2 — 2026-08-26
+
+- Fixed an unsafe fallback that could mistake X's Settings search field for the muted-word editor.
+- Added support for X's newer `mutedKeywordTextInput` editor identifier.
+- Restricted all typing to the dedicated muted-word route or dialog and explicitly excluded search fields.
+- Added fail-closed navigation guards so sync stops immediately if X leaves the muted-word flow.
+- Improved duplicate recovery by safely returning to the list before processing the next word.
+- Added a browser regression that proves the Settings search value remains untouched.
+
 ## 0.3.1 — 2026-08-26
 
 - Fixed the false “Add button not found” error on X's current Muted words page.

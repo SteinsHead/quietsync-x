@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "QuietSync for X",
   "short_name": "QuietSync",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "minimum_chrome_version": "120",
   "description": "Pull, classify, review, and sync remote mute lists to X's native Muted words.",
   "permissions": ["storage", "alarms"],

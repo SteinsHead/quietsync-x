@@ -1,3 +1,5 @@
+history.replaceState({}, "", "/settings/muted_keywords");
+
 setTimeout(() => {
   globalThis.__quietSyncFixture.listener({
     type: "QUIETSYNC_RUN",

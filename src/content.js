@@ -8,13 +8,16 @@
   ];
   const INPUT_SELECTORS = [
     'input[name="keyword"]',
+    'input[data-testid="mutedKeywordTextInput"]',
+    '[data-testid="mutedKeywordTextInput"] input',
     'input[data-testid="mutedWordInput"]',
     '[data-testid="mutedWordInput"] input'
   ];
   const SAVE_SELECTORS = [
     '[data-testid="settingsSave"]',
     '[data-testid="settingsDetailSave"]',
-    '[data-testid="saveMutedWord"]'
+    '[data-testid="saveMutedWord"]',
+    '[data-testid="Profile_Save_Button"]'
   ];
   const POLL_INTERVAL = 120;
   let running = false;
@@ -31,7 +34,7 @@
       sendResponse({ accepted: false, error: "Sync already running" });
       return false;
     }
-    if (!location.pathname.includes("/settings/muted_keywords")) {
+    if (!isMutedWordsListPage()) {
       sendResponse({ accepted: false, error: "Wrong X settings page" });
       return false;
     }
@@ -63,6 +66,9 @@
           setTimeout(() => hud.remove(), 6000);
           return;
         }
+        if (!isSyncSurface()) {
+          throw new FatalSyncError("X 页面已离开屏蔽词设置，QuietSync 已停止，未再填写任何内容。");
+        }
         const item = words[index];
         updateHud(hud, {
           index: index + 1,
@@ -85,6 +91,7 @@
             await report({ event: "item-success", item, total: words.length, completed, failed, skipped });
           }
         } catch (error) {
+          if (error instanceof FatalSyncError) throw error;
           if (abortRequested) {
             updateHud(hud, { index, total: words.length, completed, failed, skipped, status: "已安全停止" });
             hud.classList.add("is-warning");
@@ -128,9 +135,15 @@
         await addMutedWord(term, options);
         return "success";
       } catch (error) {
-        if (isDuplicateError(error.message)) return "skipped";
+        if (error instanceof FatalSyncError) throw error;
+        if (isDuplicateError(error.message)) {
+          const recovered = await returnToList();
+          if (!recovered) throw new FatalSyncError("X 的屏蔽词编辑页无法安全关闭，同步已停止。");
+          return "skipped";
+        }
         lastError = error;
-        await returnToList();
+        const recovered = await returnToList();
+        if (!recovered) throw new FatalSyncError("X 的屏蔽词编辑页无法安全关闭，同步已停止。");
         if (attempt === 0) await sleep(700);
       }
     }
@@ -138,6 +151,9 @@
   }
 
   async function addMutedWord(term, options) {
+    if (!isMutedWordsListPage()) {
+      throw new FatalSyncError("当前不在 X 的 Muted words 列表页，同步已停止。");
+    }
     const addButton = await waitForElement(findAddButton, 8000);
     if (!addButton) throw new Error("Add 按钮不可用");
     addButton.click();
@@ -164,7 +180,7 @@
     saveButton.click();
 
     const outcome = await waitUntil(() => {
-      if (!findKeywordInput()) return { status: "closed" };
+      if (!findKeywordInput() && isMutedWordsListPage()) return { status: "closed" };
       const alert = readAlert();
       return alert ? { status: "error", message: alert } : null;
     }, 7000);
@@ -216,14 +232,19 @@
   }
 
   async function returnToList() {
-    if (!findKeywordInput()) return;
-    const candidates = [...document.querySelectorAll('button, [role="button"]')];
+    const input = findKeywordInput();
+    if (!input) return isMutedWordsListPage();
+    const scope = input.closest('[role="dialog"]') || input.closest("main") || document;
+    const candidates = [...scope.querySelectorAll('button, [role="button"]')];
     const cancel = candidates.find((button) => {
+      if (!isUsable(button)) return false;
       const label = `${button.getAttribute("aria-label") || ""} ${button.textContent || ""}`.toLocaleLowerCase();
       return /back|close|cancel|返回|关闭|取消|關閉/.test(label);
     });
     if (cancel) cancel.click();
-    await waitUntil(() => !findKeywordInput(), 2500);
+    else if (isAddMutedWordPage()) history.back();
+    const returned = await waitUntil(() => isMutedWordsListPage() && !findKeywordInput(), 3500);
+    return Boolean(returned);
   }
 
   function readAlert() {
@@ -241,6 +262,7 @@
   }
 
   function findAddButton() {
+    if (!isMutedWordsListPage()) return null;
     const directMatch = firstUsableMatch(ADD_SELECTORS);
     if (directMatch) return directMatch;
 
@@ -255,25 +277,29 @@
 
   function findKeywordInput() {
     const directMatch = firstUsableMatch(INPUT_SELECTORS);
-    if (directMatch) return directMatch;
+    if (directMatch && !isSearchInput(directMatch)) return directMatch;
 
-    const scope = document.querySelector('[role="dialog"]') || document.querySelector("main");
+    const dialog = document.querySelector('[role="dialog"]');
+    if (!dialog && !isAddMutedWordPage()) return null;
+    const scope = dialog || document.querySelector('[data-testid="primaryColumn"]') || document.querySelector("main");
     if (!scope) return null;
     const inputs = scope.querySelectorAll('input:not([type]), input[type="text"]');
     return [...inputs].find((input) => {
-      if (!isUsable(input)) return false;
+      if (!isUsable(input) || isSearchInput(input)) return false;
       const label = controlLabel(input);
-      return !/search|搜索|搜尋|検索/.test(label);
+      return /word or phrase|muted (?:word|keyword)|keyword|字词|字詞|关键词|關鍵字|屏蔽词|屏蔽詞|隱藏.*字詞|隐藏.*字词|単語|フレーズ/.test(label);
     }) || null;
   }
 
   function findSaveButton() {
-    const directMatch = firstUsableMatch(SAVE_SELECTORS);
-    if (directMatch) return directMatch;
-
     const input = findKeywordInput();
-    const scope = input?.closest('[role="dialog"]') || input?.closest("main") || document.querySelector("main");
+    if (!input) return null;
+    const scope = input.closest('[role="dialog"]') || input.closest("main") || document.querySelector("main");
     if (!scope) return null;
+    for (const selector of SAVE_SELECTORS) {
+      const match = [...scope.querySelectorAll(selector)].find(isUsable);
+      if (match) return match;
+    }
     const controls = scope.querySelectorAll('button, [role="button"]');
     return [...controls].find((control) => {
       if (!isUsable(control)) return false;
@@ -297,8 +323,14 @@
     return style.display !== "none" && style.visibility !== "hidden" && element.getClientRects().length > 0;
   }
 
+  function isSearchInput(element) {
+    if (!element) return false;
+    if (element.type === "search" || element.getAttribute("role") === "searchbox") return true;
+    return /search|搜索|搜尋|検索/.test(controlLabel(element));
+  }
+
   function controlLabel(element) {
-    return `${element.getAttribute("aria-label") || ""} ${element.getAttribute("title") || ""} ${element.textContent || ""}`
+    return `${element.getAttribute("aria-label") || ""} ${element.getAttribute("placeholder") || ""} ${element.getAttribute("title") || ""} ${element.getAttribute("name") || ""} ${element.getAttribute("data-testid") || ""} ${element.textContent || ""}`
       .trim()
       .replace(/\s+/g, " ")
       .toLocaleLowerCase();
@@ -307,6 +339,20 @@
   function waitForElement(find, timeout) {
     return waitUntil(find, timeout);
   }
+
+  function isMutedWordsListPage() {
+    return location.pathname.replace(/\/+$/, "") === "/settings/muted_keywords";
+  }
+
+  function isAddMutedWordPage() {
+    return location.pathname.replace(/\/+$/, "") === "/settings/add_muted_keyword";
+  }
+
+  function isSyncSurface() {
+    return isMutedWordsListPage() || isAddMutedWordPage();
+  }
+
+  class FatalSyncError extends Error {}
 
   async function waitUntil(check, timeout) {
     const started = Date.now();
