@@ -22,7 +22,7 @@ const elements = Object.fromEntries([
   "onboardingBanner", "exploreSourcesButton", "cancelSyncButton", "subscribeCatalogButton",
   "autoSyncMinConfidence", "exportBackupButton", "exportWordsButton", "syncDialog", "syncForm",
   "previewCount", "previewTime", "previewCategories", "previewList", "confirmSyncButton",
-  "viewSubtitle", "runtimeMode"
+  "viewSubtitle", "runtimeMode", "themeToggle", "themeIcon", "themeLabel"
 ].map((id) => [id, document.getElementById(id)]));
 
 elements.runtimeMode.textContent = extensionMode ? "仅本地处理" : "界面预览模式";
@@ -52,6 +52,7 @@ elements.subscribeCatalogButton.addEventListener("click", subscribeCatalog);
 elements.confirmSyncButton.addEventListener("click", executeSync);
 elements.exportBackupButton.addEventListener("click", exportBackup);
 elements.exportWordsButton.addEventListener("click", exportWords);
+elements.themeToggle.addEventListener("click", toggleTheme);
 
 if (extensionMode) {
   chrome.runtime.onMessage.addListener((message) => {
@@ -87,6 +88,7 @@ async function loadState() {
 
 function render() {
   if (!state) return;
+  applyTheme(state.settings?.theme || "light");
   const activeEntries = state.entries.filter((entry) => !entry.stale);
   const queue = buildSyncQueue(state.entries, state.knownMuted);
   const synced = state.entries.filter((entry) => entry.status === "synced").length;
@@ -326,6 +328,30 @@ function renderSettings() {
   setSelectValue(elements.muteFrom, settings.muteFrom);
   setSelectValue(elements.duration, settings.duration);
   setSelectValue(elements.actionDelay, settings.actionDelay);
+}
+
+function applyTheme(theme) {
+  const resolved = theme === "dark" ? "dark" : "light";
+  document.documentElement.dataset.theme = resolved;
+  elements.themeIcon.textContent = resolved === "dark" ? "☾" : "☀";
+  elements.themeLabel.textContent = resolved === "dark" ? "夜间" : "清新";
+  const target = resolved === "dark" ? "清新" : "夜间";
+  elements.themeToggle.ariaLabel = `切换到${target}模式`;
+  elements.themeToggle.title = `切换到${target}模式`;
+}
+
+async function toggleTheme() {
+  const previous = document.documentElement.dataset.theme === "dark" ? "dark" : "light";
+  const next = previous === "dark" ? "light" : "dark";
+  applyTheme(next);
+  try {
+    const response = await send({ type: "SAVE_SETTINGS", settings: { theme: next } });
+    state = response.state;
+    render();
+  } catch (error) {
+    applyTheme(previous);
+    showToast("外观设置没有保存，请再试一次。", true);
+  }
 }
 
 function switchView(view) {
@@ -665,7 +691,7 @@ function createMockState() {
     ],
     entries,
     knownMuted: entries.filter((entry) => entry.status === "synced").map((entry) => entry.normalized),
-    settings: { refreshHours: 6, autoSync: false, autoSyncMinConfidence: 0.72, addOnly: true, duration: "forever", muteFrom: "everyone", homeTimeline: true, notifications: true, actionDelay: 1800 },
+    settings: { refreshHours: 6, autoSync: false, autoSyncMinConfidence: 0.72, addOnly: true, duration: "forever", muteFrom: "everyone", homeTimeline: true, notifications: true, actionDelay: 1800, theme: "light" },
     refresh: { status: "idle", lastSuccessAt: new Date().toISOString(), error: null },
     sync: { status: "idle", total: 0, completed: 0, failed: 0, current: null, finishedAt: null, error: null }
   };

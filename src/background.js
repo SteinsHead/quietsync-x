@@ -36,7 +36,8 @@ function defaultState() {
       muteFrom: "everyone",
       homeTimeline: true,
       notifications: true,
-      actionDelay: 1800
+      actionDelay: 1800,
+      theme: "light"
     },
     refresh: {
       status: "idle",
@@ -173,6 +174,7 @@ async function saveSettings(settings) {
     current.settings = { ...current.settings, ...settings };
     current.settings.refreshHours = Math.min(168, Math.max(0.5, Number(current.settings.refreshHours) || 6));
     current.settings.actionDelay = Math.min(10000, Math.max(900, Number(current.settings.actionDelay) || 1800));
+    current.settings.theme = ["light", "dark"].includes(current.settings.theme) ? current.settings.theme : "light";
     return current;
   });
   await configureAlarm(state.settings.refreshHours);

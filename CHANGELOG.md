@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.4.0 — 2026-08-26
+
+- Replaced the default black-and-green interface with a fresh blue-and-white visual system.
+- Added a persistent Light/Dark appearance switch shared by the dashboard and extension popup.
+- Reworked cards, navigation, forms, tables, dialogs, status colors, and focus states for clearer hierarchy.
+- Refined the optional dark theme from green-black to a quieter slate-and-blue palette.
+- Updated all README and Chrome Web Store screenshots using synthetic preview data only.
+- Kept appearance preferences local with no new permissions, telemetry, or remote requests.
+
 ## 0.3.2 — 2026-08-26
 
 - Fixed an unsafe fallback that could mistake X's Settings search field for the muted-word editor.

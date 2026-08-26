@@ -13,6 +13,7 @@ const syncButton = document.getElementById("syncButton");
 const buttonCount = document.getElementById("buttonCount");
 const refreshButton = document.getElementById("refreshButton");
 const dashboardButton = document.getElementById("dashboardButton");
+const themeToggle = document.getElementById("themeToggle");
 let state;
 
 async function send(message) {
@@ -32,6 +33,7 @@ async function load() {
 }
 
 function render() {
+  applyTheme(state.settings?.theme || "light");
   const active = state.entries.filter((entry) => !entry.stale);
   const queue = buildSyncQueue(state.entries, state.knownMuted);
   const synced = state.entries.filter((entry) => entry.status === "synced").length;
@@ -63,6 +65,15 @@ function render() {
     statusTitle.textContent = queue.length ? "词库已更新" : "现在很安静";
     statusDetail.textContent = queue.length ? `${queue.length} 个新增词等待写入` : "远程词库与本地记录一致";
   }
+}
+
+function applyTheme(theme) {
+  const resolved = theme === "dark" ? "dark" : "light";
+  document.documentElement.dataset.theme = resolved;
+  themeToggle.textContent = resolved === "dark" ? "☾" : "☀";
+  const target = resolved === "dark" ? "清新" : "夜间";
+  themeToggle.ariaLabel = `切换到${target}模式`;
+  themeToggle.title = `切换到${target}模式`;
 }
 
 function showError(message) {
@@ -106,6 +117,19 @@ dashboardButton.addEventListener("click", async () => {
   window.close();
 });
 
+themeToggle.addEventListener("click", async () => {
+  const previous = document.documentElement.dataset.theme === "dark" ? "dark" : "light";
+  const next = previous === "dark" ? "light" : "dark";
+  applyTheme(next);
+  try {
+    state = (await send({ type: "SAVE_SETTINGS", settings: { theme: next } })).state;
+    render();
+  } catch (error) {
+    applyTheme(previous);
+    showError("外观设置没有保存，请再试一次。");
+  }
+});
+
 if (extensionMode) {
   chrome.storage.onChanged.addListener((changes) => {
     if (!changes.quietsyncState) return;
@@ -130,9 +154,14 @@ function mockSend(message) {
     entries,
     knownMuted: entries.slice(92).map((entry) => entry.normalized),
     refresh: { status: "idle", error: null },
-    sync: { status: "idle", completed: 0, failed: 0, skipped: 0, total: 0, current: null }
+    sync: { status: "idle", completed: 0, failed: 0, skipped: 0, total: 0, current: null },
+    settings: { theme: "light" }
   };
   if (message.type === "GET_STATE" || message.type === "REFRESH_SOURCES") return { ok: true, state: previewState };
+  if (message.type === "SAVE_SETTINGS") {
+    previewState.settings = { ...previewState.settings, ...message.settings };
+    return { ok: true, state: previewState };
+  }
   if (message.type === "START_SYNC") throw new Error("预览模式不会操作 X");
   return { ok: true, state: previewState };
 }

@@ -21,6 +21,7 @@ With QuietSync you can:
 - review terms by categories such as scams, spam, engagement bait, crypto, adult content, harassment, politics, and AI slop;
 - add new terms without automatically removing existing X settings;
 - choose timeline, notification, audience, and duration options before syncing;
+- switch between a fresh light theme and a matching night mode across the dashboard and popup;
 - export a local backup or stop a sync at any time.
 
 Automatic syncing is off by default. A normal sync starts only after you select terms and confirm the action.
@@ -50,4 +51,3 @@ Productivity
 ## Language
 
 English (United States)
-

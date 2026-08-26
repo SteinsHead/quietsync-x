@@ -2,7 +2,7 @@
 
 ## Chrome Web Store
 
-- [x] 安装包：`release/quietsync-x-0.3.2.zip`
+- [x] 安装包：`release/quietsync-x-0.4.0.zip`
 - [x] 商店图标：`assets/icon-128.png`（128×128，透明边距）
 - [x] 小型推广图：`assets/promo-small-440x280.png`（440×280）
 - [x] 产品截图：3 张 1280×800 PNG，全部来自本地演示数据
