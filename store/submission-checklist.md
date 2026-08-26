@@ -11,10 +11,14 @@
 - [x] 审核员测试步骤
 - [x] 隐私政策：https://github.com/SteinsHead/quietsync-x/blob/main/PRIVACY.md
 - [x] 支持地址：https://github.com/SteinsHead/quietsync-x/issues
-- [ ] 开发者账号已注册，联系邮箱已验证，Google 账号已开启两步验证
-- [ ] 上传 ZIP 并填写 Store Listing / Privacy / Distribution / Test instructions
-- [ ] 最终预览无私人邮箱、账号 ID、真实词库或同步记录
-- [ ] 发布者本人确认并点击 Submit for Review
+- [x] 开发者账号已注册，联系邮箱已验证，Google 账号已开启两步验证
+- [x] 上传 ZIP 并填写 Store Listing / Privacy / Distribution / Test instructions
+- [x] 最终预览无真实账号内容、私人词库或同步记录
+- [x] 发布者本人确认并点击 Submit for Review
+
+提交记录：2026-08-26 已进入审核队列，状态为「待审核」，审核通过后自动发布。
+
+Chrome Web Store Item ID：`lmnljbfoibgbledonocpdboegkefpjbn`
 
 Chrome 官方发布说明：https://developer.chrome.com/docs/webstore/publish/
 
@@ -27,4 +31,3 @@ Chrome 官方发布说明：https://developer.chrome.com/docs/webstore/publish/
 - [ ] 发布者本人确认并提交审核
 
 Edge 官方发布说明：https://learn.microsoft.com/en-us/microsoft-edge/extensions/publish/publish-extension
-
