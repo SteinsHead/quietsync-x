@@ -1,10 +1,10 @@
 <p align="center">
-  <img src="assets/icons/icon-128.png" width="112" height="112" alt="QuietSync logo">
+  <img src="assets/icons/icon-128.png" width="112" height="112" alt="QuietSync 图标">
 </p>
 
 <h1 align="center">QuietSync for X</h1>
 
-<p align="center"><strong>把远程词库变成真正跟随 X 账户的安静层。</strong></p>
+<p align="center">把维护词库这件麻烦事交给浏览器，把安静留给自己。</p>
 
 <p align="center">
   <a href="https://github.com/SteinsHead/quietsync-x/actions/workflows/ci.yml"><img src="https://github.com/SteinsHead/quietsync-x/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
@@ -13,15 +13,21 @@
   <img src="https://img.shields.io/badge/Manifest-V3-b5a8ff" alt="Manifest V3">
 </p>
 
-QuietSync 是一个 local-first 的 Chrome / Edge 扩展。它定时拉取你订阅的远程屏蔽词库，在浏览器本地完成清洗、去重、分类和审核，再通过 X 的可见网页界面把新增词逐条写入原生 **Muted words**。
+做这个项目的起点很简单：网上已经有人在认真维护垃圾内容词库，X 也有自己的 **Muted words**，可两者之间始终缺一个可靠的搬运工。
 
-它不是仅在当前浏览器隐藏 DOM 的过滤器。成功写入后，屏蔽词属于你的 X 账户，因此会同步影响手机、平板与其他电脑上的 Home timeline 和 Notifications。
+手动加十几个词还行，几百个就变成了苦差事。普通的网页过滤插件虽然方便，但换到手机上，一切又得重来。
 
-> QuietSync 与 X Corp. 无关联，也不是 X 官方产品。X 官方说明 Muted words 不会过滤搜索结果。
+QuietSync 做的就是中间这一步：定时取回你订阅的词库，在本地整理好，让你看一遍，然后把新增内容写进 X 自己的屏蔽词。写进去之后，它们跟着 X 账户走，手机、平板和其他电脑都能生效。
 
-## 产品界面
+它不会替你决定该看什么，也不会偷偷删除你原来的设置。最终按下同步按钮的人，始终是你。
+
+> QuietSync 不是 X 官方产品，也与 X Corp. 没有关系。X 的屏蔽词目前主要影响主页时间线和通知，不会过滤搜索结果。
+
+## 看起来是这样
 
 ![QuietSync 屏蔽词库审核台](docs/images/dashboard-library.png)
+
+审核台会告诉你词从哪里来、被分到了哪一类、哪些已经同步，以及哪些最好再看一眼。截图里的内容都是项目自带的演示数据，不是真实账号数据。
 
 <table>
   <tr>
@@ -29,39 +35,32 @@ QuietSync 是一个 local-first 的 Chrome / Edge 扩展。它定时拉取你订
     <td width="50%"><img src="docs/images/dashboard-settings.png" alt="QuietSync 同步设置界面"></td>
   </tr>
   <tr>
-    <td align="center">按来源授权、拉取和缓存远程词库</td>
-    <td align="center">控制自动化阈值、X 原生范围与备份</td>
+    <td align="center">订阅公开词库，也可以只用自己的地址</td>
+    <td align="center">同步频率、自动化门槛和 X 选项都能自己定</td>
   </tr>
 </table>
 
-截图来自项目内置的本地预览数据，不含真实账号、私人词条、浏览记录或访问令牌。
+## 它具体会做什么
 
-## 核心能力
+QuietSync 能读常见的 TXT 和 JSON 词库。不同来源里的重复项会自动合并；奇怪的空格、大小写和用来绕过匹配的不可见字符也会被整理掉。
 
-- 支持远程 TXT、JSON 数组、对象数组和按分类分组的 JSON
-- 每 1 小时至每周自动拉取，也可手动刷新
-- Unicode 归一化、大小写无关去重、多来源合并
-- 自动清理常用于绕过匹配的不可见字符
-- 识别 `# [分类]` 社区词库；用户名组自动转换为 `@handle`
-- 本地规则分类：诈骗、推广、互动诱导、加密、成人、骚扰、政治、AI 低质和自定义
-- 支持逐词复核分类、启用、停用和忽略
-- Add-only 增量同步：不会因为远程词库删词就自动解除屏蔽
-- 写入前预览，一键 Add → Save，提供进度、取消、重试、随机限速和中断恢复
-- 可选自动写入；默认关闭，并通过置信度门槛排除高风险条目
-- 正则条目会留在审核台，但不会错误写入不支持正则的 X 原生设置
-- JSON 完整备份与 TXT 词表导出
+词条会在浏览器里按诈骗、推广、互动诱导、加密、成人、骚扰、政治、AI 低质等类别归档。这个分类用的是简单透明的本地规则，不是什么神秘模型，所以分错时你可以直接改。
+
+确认同步后，QuietSync 会打开 X 的 Muted words 页面，像人操作网页一样逐条填写和保存。遇到已有词会跳过，页面临时出错会重试，也可以随时停止。远程词库以后删掉某个词，QuietSync **不会**顺手帮你解除屏蔽——维护者改变主意，不代表你也必须改变主意。
+
+自动同步是可选项，而且默认关闭。真要开启，也可以设置最低置信度，避免宽泛或没把握的词直接进入账号。
 
 ## 安装
 
-### 从 Release 安装
+目前还没有上架浏览器商店，安装需要一分钟：
 
-1. 打开 [Releases](https://github.com/SteinsHead/quietsync-x/releases) 并下载最新的 `quietsync-x-*.zip`。
-2. 解压到一个固定目录。
-3. 打开 `chrome://extensions/` 或 `edge://extensions/`。
-4. 开启「开发者模式」，点击「加载已解压的扩展程序」。
-5. 选择包含 `manifest.json` 的 QuietSync 目录。
+1. 从 [Releases](https://github.com/SteinsHead/quietsync-x/releases) 下载最新的 `quietsync-x-*.zip`。
+2. 解压到一个不容易误删的目录。
+3. 在 Chrome 打开 `chrome://extensions/`，Edge 则打开 `edge://extensions/`。
+4. 开启右上角的「开发者模式」，点击「加载已解压的扩展程序」。
+5. 选择刚刚解压、里面直接放着 `manifest.json` 的目录。
 
-### 从源码安装
+如果更喜欢从源码开始：
 
 ```bash
 git clone https://github.com/SteinsHead/quietsync-x.git
@@ -69,22 +68,19 @@ cd quietsync-x
 npm test
 ```
 
-随后按上面的开发者模式步骤加载仓库目录。本项目没有运行时构建依赖，浏览器直接加载源码。
+QuietSync 没有运行时依赖，也不需要打包构建，浏览器可以直接加载源码。
 
-## 使用流程
+## 第一次使用
 
-1. 点击扩展图标，打开「审核台」。
-2. 在「订阅来源」一键订阅社区词库，或添加自己的 GitHub Raw / HTTPS 静态 URL。
-3. 点击「拉取词库」，检查自动分类、置信度和不支持项。
-4. 按需修改分类、关闭误伤条目或使用筛选器批量审核。
-5. 点击「同步到 X」，确认新增词和预计时间。
-6. QuietSync 打开 `x.com/settings/muted_keywords`，通过可见表单逐条保存。
+安装后打开扩展，再进入「审核台」。内置的小词表只是让你看看界面，不会突然往账号里写一大堆东西。
 
-首次建议只同步 20–50 个词，确认 X 当前网页结构和账号设置正常后再扩大范围。
+前往「订阅来源」，可以一键加入 `x-comment-blocker` 的公共词库，也可以填写自己的 GitHub Raw 或其他 HTTPS 静态地址。拉取完成后，先随手看几页分类结果，把太宽泛或者不合适的词关掉，再点「同步到 X」。
 
-## 词库格式
+第一次建议只同步 20–50 个词。这不是因为 QuietSync 有这个限制，而是 X 的网页会变，账号也可能遇到频率限制。小批量确认没问题，再放心交给它跑完整个列表。
 
-最简单的 TXT 是每行一个词：
+## 词库怎么写
+
+最省事的格式就是每行一个词：
 
 ```text
 follow me for follow back
@@ -93,7 +89,7 @@ connect your wallet
 加微领取
 ```
 
-带分类的社区 TXT：
+如果维护的是社区词库，可以顺便写上分类：
 
 ```text
 # [仇恨用语]
@@ -103,9 +99,9 @@ example phrase
 spam_bot
 ```
 
-用户名会转换为 `@spam_bot`。形如 `/pattern/i` 的正则会标记为「X 不支持」，不会被当作普通文本写入。
+用户名组里的 `spam_bot` 会变成 X 能识别的 `@spam_bot`。形如 `/pattern/i` 的正则会保留在审核台里，但不会被当成普通文字写入 X，因为 X 原生屏蔽词并不支持正则。
 
-JSON 可以是字符串数组，也可以直接分组：
+JSON 也可以很简单：
 
 ```json
 {
@@ -115,52 +111,49 @@ JSON 可以是字符串数组，也可以直接分组：
 }
 ```
 
-分类键：`scam`、`spam`、`engagement`、`crypto`、`adult`、`harassment`、`politics`、`ai_slop`、`custom`。
+目前认识的分类键有：`scam`、`spam`、`engagement`、`crypto`、`adult`、`harassment`、`politics`、`ai_slop` 和 `custom`。
 
-## 隐私与安全
+## 关于隐私，直说
 
-QuietSync 没有账号系统、广告、分析 SDK、遥测或远程代码加载器。
+QuietSync 没有账号系统，也没有统计、广告或遥测。词库、审核结果和同步记录都放在浏览器自己的 `chrome.storage.local` 里。
 
-- 本地状态只存储在 `chrome.storage.local`
-- 远程来源仅接受 HTTPS，按来源域名单独请求可选权限
-- 词库请求使用 `credentials: omit` 与 `referrerPolicy: no-referrer`
-- 内容脚本只注入 X 的 Muted words 设置页
-- 不读取 Cookie、密码或浏览器历史，不调用 X 私有 API
-- 远程响应上限为 2 MB / 10,000 个有效词条，并始终按不可信文本解析
-- 完整 JSON 备份包含私人词条、来源 URL 和错误记录，属于敏感文件，请勿直接上传到公开 Issue
+添加远程词库时，扩展只申请那个 HTTPS 域名的读取权限；取词库不会带上 Cookie、登录凭据或来源页面。远程服务器仍然会像任何普通网站一样看到连接所需的 IP 和 User-Agent，这一点没法假装不存在。
 
-远程词库服务器仍然可以看到正常 HTTPS 连接所必需的 IP 地址和 User-Agent。完整边界见 [PRIVACY.md](PRIVACY.md) 与 [SECURITY.md](SECURITY.md)。
+扩展在 X 上的脚本只会进入 Muted words 设置页，通过眼前看得见的表单工作。它不读取密码、Cookie 或浏览历史，也不调用 X 的私有 API。
 
-## 已知限制
+还有一件容易忽略的事：导出的完整 JSON 备份里有你的词条、来源地址和同步错误。它很适合迁移，却不适合原样丢进公开 Issue。要分享诊断信息，请先把私人内容删干净。
 
-- X 的网页 DOM 会变化，选择器失效时同步会停止并保留已完成部分
-- X 原生 Muted words 不过滤搜索结果
-- 首次同步大词库需要逐条写入，可能耗时较长
-- QuietSync 目前面向 Chromium 桌面浏览器，尚未发布到浏览器商店
-- 自动分类是透明的本地规则，不是语义模型；低置信度结果应人工检查
+更完整的边界写在 [PRIVACY.md](PRIVACY.md) 和 [SECURITY.md](SECURITY.md) 里。
 
-## 致谢与来源
+## 目前做不到的事
 
-QuietSync 的实现是独立完成的，没有复制下列项目的源代码；它们提供了词库、产品思路或同类项目经验，值得明确感谢：
+- X 改网页结构后，自动填写可能暂时失效。QuietSync 会停下来，不会猜着乱点。
+- 大词库第一次同步确实需要时间，因为 X 仍然要求一个词一个词保存。
+- 搜索结果不受 Muted words 影响，这是 X 本身的行为。
+- 现在主要照顾 Chromium 桌面浏览器；Firefox、移动浏览器和商店版还没有做。
+- 本地分类规则能解释、能修改，但不可能理解每个词在所有语境里的意思。
 
-- [amahteru/x-comment-blocker](https://github.com/amahteru/x-comment-blocker)：可选的一键订阅公共词库来源；项目采用 MIT License。
-- [nirholas/XActions](https://github.com/nirholas/XActions)：X 网页端批量自动化方案的公开先例与早期调研来源。
-- [IanColdwater 的批量 Muted words Gist](https://gist.github.com/IanColdwater/88b3341a7c4c0cf71c73ac56f9bd36ec)：跳过重复项并逐条填写的早期公开实践。
-- [sogud/x-muted-words](https://github.com/sogud/x-muted-words)、[watermelon-ping/x-muted-keyword-sync](https://github.com/watermelon-ping/x-muted-keyword-sync)、[fyzanshaik/x-mute-helper](https://github.com/fyzanshaik/x-mute-helper)、[cvarrasi/better-muted-words-twitter-extension](https://github.com/cvarrasi/better-muted-words-twitter-extension) 与 [Azoroh/x-mute-manager](https://github.com/Azoroh/x-mute-manager)：同类项目与生态参考。
-- [X Help Center — Advanced muting options](https://help.x.com/en/using-x/advanced-x-mute-options)：原生 Muted words 行为说明。
+## 谢谢这些项目
 
-详细的来源边界与许可证说明见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。感谢这些维护者让 X 的内容控制体验不断变好。
+QuietSync 不是凭空长出来的。
 
-## 开发
+[x-comment-blocker](https://github.com/amahteru/x-comment-blocker) 的维护者一直在整理公开的中文垃圾评论词库，QuietSync 的来源目录里提供了它的一键订阅入口。词库仍然由原项目维护，也遵循原项目的 MIT License。
+
+[XActions](https://github.com/nirholas/XActions) 和 [IanColdwater 的批量 Muted words 脚本](https://gist.github.com/IanColdwater/88b3341a7c4c0cf71c73ac56f9bd36ec) 证明了通过可见网页界面批量填写是可行的，也给了这个项目很早的方向感。
+
+后来做同类项目调研时，还看到了 [sogud/x-muted-words](https://github.com/sogud/x-muted-words)、[watermelon-ping/x-muted-keyword-sync](https://github.com/watermelon-ping/x-muted-keyword-sync)、[x-mute-helper](https://github.com/fyzanshaik/x-mute-helper)、[Better Muted Words](https://github.com/cvarrasi/better-muted-words-twitter-extension) 和 [x-mute-manager](https://github.com/Azoroh/x-mute-manager)。大家选的路不完全一样，但都在解决 X 原生设置难以批量维护的问题。
+
+QuietSync 的代码是独立实现的，没有复制这些项目的源码。更严谨的来源和许可证边界放在 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。真心感谢这些作者愿意把工作公开出来。
+
+## 想一起改
 
 ```bash
-npm test
 npm run check
 ```
 
-`tests/fixtures/settings/muted_keywords.html` 是本地 X UI 模拟页，用于验证完整的 Add → Save、重复跳过和进度上报链路。
+这会完成语法检查和单元测试。`tests/fixtures/settings/muted_keywords.html` 还准备了一个假的 X 设置页，用来跑 Add → Save、重复跳过和进度回报的完整流程，不需要拿真实账号冒险。
 
-欢迎阅读 [CONTRIBUTING.md](CONTRIBUTING.md) 后提交 Issue 或 Pull Request。安全问题请按 [SECURITY.md](SECURITY.md) 私下报告，不要在公开 Issue 中附带账号信息或完整备份。
+欢迎提交 Issue 或 Pull Request，开始前可以看一眼 [CONTRIBUTING.md](CONTRIBUTING.md)。如果发现的是安全问题，请使用 GitHub 的私密漏洞报告，别把账号信息、私人词库或完整备份放进公开讨论。
 
 ## License
 
