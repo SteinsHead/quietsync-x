@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>QuietSync</title>
+    <link rel="stylesheet" href="popup.css">
+  </head>
+  <body>
+    <header>
+      <div class="brand"><img src="../assets/icons/icon-128.png" alt=""><div><strong>QuietSync</strong><span>for X · your quiet layer</span></div></div>
+      <span class="local-pill"><i></i> LOCAL</span>
+    </header>
+    <main>
+      <section class="hero">
+        <p>WAITING TO SYNC</p>
+        <strong id="pendingCount">0</strong>
+        <span>个新屏蔽词</span>
+        <div class="meter"><i id="meterBar"></i></div>
+        <div class="hero-meta"><span id="totalCount">0 个远程词条</span><span id="syncedCount">0 个已同步</span></div>
+      </section>
+      <section class="status-row">
+        <span class="status-icon" id="statusIcon">✓</span>
+        <div><strong id="statusTitle">词库已就绪</strong><p id="statusDetail">正在读取本地状态…</p></div>
+      </section>
+      <button class="sync-button" id="syncButton">同步新增词到 X <b id="buttonCount">0</b></button>
+      <div class="secondary-actions">
+        <button id="refreshButton">↻ 拉取词库</button>
+        <button id="dashboardButton">打开审核台 →</button>
+      </div>
+    </main>
+    <footer><span><i></i> Add-only</span><span>不会自动解除屏蔽</span></footer>
+    <script type="module" src="popup.js"></script>
+  </body>
+</html>

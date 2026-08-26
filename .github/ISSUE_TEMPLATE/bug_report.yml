@@ -1,0 +1,47 @@
+name: Bug report
+description: Report a reproducible QuietSync problem without sharing private data.
+title: "[Bug]: "
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: "Do not attach backups, cookies, tokens, private source URLs, or personal mute terms."
+  - type: input
+    id: version
+    attributes:
+      label: QuietSync version
+      placeholder: 0.3.0
+    validations:
+      required: true
+  - type: input
+    id: browser
+    attributes:
+      label: Browser and version
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Reproduction steps
+      description: Use harmless example terms and redact account information.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+    validations:
+      required: true
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: Privacy check
+      options:
+        - label: I removed account data, private terms, source URLs, tokens, and backups.
+          required: true

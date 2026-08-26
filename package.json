@@ -1,0 +1,32 @@
+{
+  "name": "quietsync-x",
+  "version": "0.3.0",
+  "private": true,
+  "type": "module",
+  "description": "Local-first remote mute-list classification and native sync for X",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SteinsHead/quietsync-x.git"
+  },
+  "bugs": {
+    "url": "https://github.com/SteinsHead/quietsync-x/issues"
+  },
+  "homepage": "https://github.com/SteinsHead/quietsync-x#readme",
+  "keywords": [
+    "chrome-extension",
+    "twitter",
+    "x",
+    "muted-words",
+    "privacy",
+    "content-moderation"
+  ],
+  "scripts": {
+    "test": "node --test",
+    "check": "node --check src/background.js && node --check src/content.js && node --check src/dashboard.js && node --check src/popup.js && npm test",
+    "package": "bash scripts/package-release.sh"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

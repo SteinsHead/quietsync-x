@@ -1,0 +1,25 @@
+name: Feature request
+description: Suggest a focused improvement to QuietSync.
+title: "[Feature]: "
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What problem should QuietSync solve?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed behavior
+    validations:
+      required: true
+  - type: textarea
+    id: privacy
+    attributes:
+      label: Privacy and permission impact
+      description: Describe any new network, X-page, or browser permission requirement.
+    validations:
+      required: true

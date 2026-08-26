@@ -1,0 +1,95 @@
+#quietsync-hud {
+  all: initial;
+  position: fixed;
+  z-index: 2147483647;
+  right: 24px;
+  bottom: 24px;
+  width: 320px;
+  box-sizing: border-box;
+  padding: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  border-radius: 18px;
+  color: #f7f8fa;
+  background: rgba(18, 20, 23, 0.94);
+  box-shadow: 0 18px 55px rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(22px);
+  font: 13px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+#quietsync-hud * { box-sizing: border-box; }
+
+#quietsync-hud .quietsync-hud__top {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+}
+
+#quietsync-hud .quietsync-hud__mark {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 11px;
+  color: #0d2118;
+  background: #b8f7cf;
+  font-weight: 850;
+}
+
+#quietsync-hud strong,
+#quietsync-hud span { display: block; }
+#quietsync-hud strong { font-size: 14px; font-weight: 750; }
+#quietsync-hud .quietsync-hud__top span { color: #9ea6b2; font-size: 12px; }
+
+#quietsync-hud .quietsync-hud__term {
+  overflow: hidden;
+  margin-top: 18px;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 650;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#quietsync-hud .quietsync-hud__track {
+  overflow: hidden;
+  height: 5px;
+  margin-top: 14px;
+  border-radius: 10px;
+  background: #30343a;
+}
+
+#quietsync-hud .quietsync-hud__track i {
+  display: block;
+  width: 0;
+  height: 100%;
+  border-radius: inherit;
+  background: #b8f7cf;
+  transition: width 240ms ease;
+}
+
+#quietsync-hud .quietsync-hud__meta {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+  color: #939ba7;
+  font-size: 11px;
+}
+
+#quietsync-hud .quietsync-hud__cancel {
+  width: 100%;
+  min-height: 32px;
+  margin-top: 13px;
+  border: 1px solid #3a403b;
+  border-radius: 9px;
+  color: #b8c0ba;
+  background: #242824;
+  font: 650 11px/1 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  cursor: pointer;
+}
+
+#quietsync-hud .quietsync-hud__cancel:hover { border-color: #59625b; color: #fff; }
+#quietsync-hud .quietsync-hud__cancel:disabled { opacity: 0.5; cursor: default; }
+
+#quietsync-hud.is-done .quietsync-hud__track i { background: #78e6a1; }
+#quietsync-hud.is-warning .quietsync-hud__track i { background: #f4b85d; }
+#quietsync-hud.is-error .quietsync-hud__track i { background: #ff776b; }

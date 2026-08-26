@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>QuietSync for X</title>
+    <link rel="stylesheet" href="dashboard.css">
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <a class="brand" href="#library" aria-label="QuietSync 首页">
+          <img src="../assets/icons/icon-128.png" alt="">
+          <span class="brand-copy"><strong>QuietSync</strong><small>for X · local first</small></span>
+        </a>
+        <nav class="nav" aria-label="主导航">
+          <button class="nav-item is-active" data-view="library">
+            <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5.5h14v13H5zM8 9h8M8 12h8M8 15h5"/></svg><span>屏蔽词库</span><b id="navPending">0</b>
+          </button>
+          <button class="nav-item" data-view="sources">
+            <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.4 15.6 6.8 17.2a3.4 3.4 0 0 1-4.8-4.8l3.3-3.3a3.4 3.4 0 0 1 4.8 0M15.6 8.4l1.6-1.6a3.4 3.4 0 0 1 4.8 4.8l-3.3 3.3a3.4 3.4 0 0 1-4.8 0M8.5 15.5l7-7"/></svg><span>订阅来源</span>
+          </button>
+          <button class="nav-item" data-view="settings">
+            <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15.3a3.3 3.3 0 1 0 0-6.6 3.3 3.3 0 0 0 0 6.6ZM19.4 13.1l1.2 1.1-2 3.5-1.6-.5a7.7 7.7 0 0 1-2.1 1.2l-.4 1.6h-4l-.4-1.6A7.7 7.7 0 0 1 8 17.2l-1.6.5-2-3.5 1.2-1.1a7.8 7.8 0 0 1 0-2.3L4.4 9.7l2-3.5 1.6.5a7.7 7.7 0 0 1 2.1-1.2l.4-1.6h4l.4 1.6A7.7 7.7 0 0 1 17 6.7l1.6-.5 2 3.5-1.2 1.1a7.8 7.8 0 0 1 0 2.3Z"/></svg><span>同步设置</span>
+          </button>
+        </nav>
+        <div class="privacy-note">
+          <span class="privacy-dot"></span>
+          <div><strong>Local first</strong><p>词库与同步记录只保存在你的浏览器。</p></div>
+        </div>
+        <a class="sidebar-link" href="https://x.com/settings/muted_keywords" target="_blank" rel="noreferrer">打开 X Muted words ↗</a>
+      </aside>
+
+      <main class="main">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow">YOUR QUIET LAYER</p>
+            <h1 id="viewTitle">屏蔽词库</h1>
+            <p class="view-subtitle" id="viewSubtitle">把嘈杂留在词库，把安静同步到每一台设备。</p>
+          </div>
+          <div class="top-actions">
+            <span class="privacy-chip"><i></i><span id="runtimeMode">仅本地处理</span></span>
+            <button class="button button-ghost" id="refreshButton"><span>↻</span> 拉取词库</button>
+            <button class="button button-primary" id="syncButton"><span>＋</span> 同步到 X <b id="syncCount">0</b></button>
+          </div>
+        </header>
+
+        <section class="view is-active" id="libraryView" data-view-panel="library">
+          <article class="onboarding-banner" id="onboardingBanner" hidden>
+            <div class="onboarding-mark">01</div>
+            <div><span class="kicker">GET STARTED</span><h2>先订阅一个真实词库</h2><p>内置列表只用于演示。添加社区词库或你自己的 GitHub Raw 地址，QuietSync 才会开始持续更新。</p></div>
+            <button class="button button-primary" id="exploreSourcesButton">选择词库 →</button>
+          </article>
+          <div class="stats-grid">
+            <article class="stat-card stat-card-primary">
+              <div class="stat-label">远程词库</div>
+              <strong id="totalCount">0</strong>
+              <p><span class="live-dot"></span><span id="sourceSummary">等待首次拉取</span></p>
+              <div class="stat-art" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+            </article>
+            <article class="stat-card">
+              <div class="stat-label">待同步</div>
+              <strong id="pendingCount">0</strong>
+              <p>新增词，不含已写入记录</p>
+              <span class="stat-badge accent">ADD ONLY</span>
+            </article>
+            <article class="stat-card">
+              <div class="stat-label">已同步到 X</div>
+              <strong id="syncedCount">0</strong>
+              <p id="lastSyncText">尚未执行同步</p>
+              <span class="stat-badge">ACCOUNT NATIVE</span>
+            </article>
+            <article class="stat-card">
+              <div class="stat-label">需要留意</div>
+              <strong id="attentionCount">0</strong>
+              <p>低置信度或同步失败</p>
+              <span class="stat-badge warm">REVIEW</span>
+            </article>
+          </div>
+
+          <section class="flow-strip" aria-label="QuietSync 工作流程">
+            <div class="flow-label"><span class="kicker">SYNC PIPELINE</span><strong>从订阅到 X 账户</strong></div>
+            <div class="flow-step is-ready"><span>01</span><div><strong>拉取</strong><small>HTTPS 词库</small></div></div>
+            <i>→</i>
+            <div class="flow-step is-ready"><span>02</span><div><strong>分类</strong><small>浏览器本地</small></div></div>
+            <i>→</i>
+            <div class="flow-step"><span>03</span><div><strong>审核</strong><small>逐词可控</small></div></div>
+            <i>→</i>
+            <div class="flow-step"><span>04</span><div><strong>写入 X</strong><small>原生 Muted words</small></div></div>
+          </section>
+
+          <div class="insight-grid">
+            <section class="panel category-panel">
+              <div class="panel-heading">
+                <div><span class="kicker">AUTO CLASSIFY</span><h2>内容分布</h2></div>
+                <span class="subtle">规则分类 · 本地运行</span>
+              </div>
+              <div class="category-chart" id="categoryChart"></div>
+            </section>
+            <section class="panel sync-panel" id="syncPanel">
+              <div class="panel-heading">
+                <div><span class="kicker">SYNC STATUS</span><h2>写入 X</h2></div>
+                <div class="sync-heading-actions"><span class="status-pill" id="syncStatus">空闲</span><button class="cancel-sync" id="cancelSyncButton" hidden>停止</button></div>
+              </div>
+              <div class="sync-now">
+                <div class="ring" id="syncRing"><span id="syncPercent">0%</span></div>
+                <div class="sync-copy">
+                  <strong id="syncHeadline">准备就绪</strong>
+                  <p id="syncDetail">选择词条后开始增量同步。</p>
+                  <div class="mini-track"><i id="syncBar"></i></div>
+                </div>
+              </div>
+            </section>
+          </div>
+
+          <section class="panel table-panel">
+            <div class="table-toolbar">
+              <div>
+                <span class="kicker">DICTIONARY</span>
+                <h2>分类与审核</h2>
+              </div>
+              <div class="toolbar-actions">
+                <label class="search-box"><span>⌕</span><input id="searchInput" type="search" placeholder="搜索词或来源"></label>
+                <select id="categoryFilter" aria-label="按分类筛选"><option value="all">全部分类</option></select>
+                <select id="statusFilter" aria-label="按状态筛选">
+                  <option value="all">全部状态</option>
+                  <option value="pending">待同步</option>
+                  <option value="synced">已同步</option>
+                  <option value="failed">失败</option>
+                  <option value="unsupported">X 不支持</option>
+                  <option value="stale">已从远程移除</option>
+                </select>
+              </div>
+            </div>
+            <div class="selection-bar">
+              <label><input type="checkbox" id="selectAll"> <span id="selectionText">选择当前列表</span></label>
+              <span id="resultCount">0 个词条</span>
+            </div>
+            <div class="table-scroll">
+              <table>
+                <thead><tr><th class="check-col"></th><th>屏蔽词</th><th>自动分类</th><th>来源</th><th>状态</th><th></th></tr></thead>
+                <tbody id="entryRows"></tbody>
+              </table>
+              <div class="empty-state" id="emptyState" hidden>
+                <div>◌</div><strong>还没有可显示的词条</strong><p>添加一个远程来源，然后拉取词库。</p>
+              </div>
+            </div>
+          </section>
+        </section>
+
+        <section class="view" id="sourcesView" data-view-panel="sources">
+          <div class="section-intro">
+            <div><span class="kicker">REMOTE SOURCES</span><h2>你的词库订阅</h2><p>支持每行一个词的 TXT，也支持 JSON 数组与按分类分组的 JSON。</p></div>
+            <button class="button button-primary" id="addSourceButton">＋ 添加来源</button>
+          </div>
+          <article class="catalog-card" id="catalogCard">
+            <div class="catalog-icon">XC</div>
+            <div class="catalog-copy"><span class="kicker">RECOMMENDED COMMUNITY LIST</span><h3>x-comment-blocker 公共词库</h3><p>约 770 个中文垃圾评论、仇恨词与用户名，由原项目持续维护。正则表达式会自动识别并留在审核台，不会错误写入 X。</p></div>
+            <div class="catalog-meta"><span>GitHub · MIT</span><button class="button button-primary" id="subscribeCatalogButton">一键订阅</button></div>
+          </article>
+          <div class="source-grid" id="sourceGrid"></div>
+          <article class="format-guide">
+            <div><span class="kicker">FORMAT</span><h3>推荐的远程格式</h3></div>
+            <pre><code>{
+  "scam": ["connect wallet", "claim airdrop"],
+  "spam": ["dm me", "加微领取"],
+  "ai_slop": ["AI美女", "made with AI"]
+}</code></pre>
+            <p>分类键可用：scam、spam、engagement、crypto、adult、harassment、politics、ai_slop、custom。</p>
+          </article>
+        </section>
+
+        <section class="view" id="settingsView" data-view-panel="settings">
+          <div class="settings-layout">
+            <section class="panel settings-card">
+              <span class="kicker">SCHEDULE</span><h2>拉取策略</h2>
+              <label class="field"><span>自动刷新间隔</span><select id="refreshHours"><option value="1">每 1 小时</option><option value="6">每 6 小时</option><option value="12">每 12 小时</option><option value="24">每天</option><option value="168">每周</option></select></label>
+              <label class="switch-row"><div><strong>拉取后自动写入 X</strong><p>会在后台打开 X 设置页。建议先观察几次分类结果。</p></div><input type="checkbox" id="autoSync"><i></i></label>
+              <label class="field"><span>自动写入最低置信度</span><select id="autoSyncMinConfidence"><option value="0.72">72%（推荐）</option><option value="0.84">84%（更谨慎）</option><option value="0.96">96%（最谨慎）</option></select></label>
+            </section>
+            <section class="panel settings-card">
+              <span class="kicker">X NATIVE OPTIONS</span><h2>原生屏蔽设置</h2>
+              <label class="switch-row"><div><strong>Home timeline</strong><p>隐藏主页时间线中的匹配内容。</p></div><input type="checkbox" id="homeTimeline"><i></i></label>
+              <label class="switch-row"><div><strong>Notifications</strong><p>隐藏通知中的匹配内容。</p></div><input type="checkbox" id="notifications"><i></i></label>
+              <label class="field"><span>通知来源</span><select id="muteFrom"><option value="everyone">任何人</option><option value="people_you_dont_follow">未关注的人</option></select></label>
+              <label class="field"><span>屏蔽时长</span><select id="duration"><option value="forever">永久</option><option value="24h">24 小时</option><option value="7d">7 天</option><option value="30d">30 天</option></select></label>
+            </section>
+            <section class="panel settings-card">
+              <span class="kicker">SAFETY</span><h2>同步安全</h2>
+              <div class="locked-setting"><span>✓</span><div><strong>Add-only 增量模式</strong><p>远程删除的词不会自动从 X 解除屏蔽。</p></div><b>已锁定</b></div>
+              <label class="field"><span>每个词的写入间隔</span><select id="actionDelay"><option value="1200">1.2 秒</option><option value="1800">1.8 秒（推荐）</option><option value="2500">2.5 秒</option><option value="4000">4 秒</option></select></label>
+              <button class="button button-primary save-settings" id="saveSettingsButton">保存设置</button>
+            </section>
+            <section class="panel settings-card data-card">
+              <span class="kicker">PORTABILITY</span><h2>备份与诊断</h2>
+              <p class="settings-description">导出完整本地状态，便于迁移或排查。备份包含你的全部词条、来源 URL 和同步记录，请勿直接公开上传。</p>
+              <div class="backup-warning"><span>!</span><p><strong>备份属于敏感文件</strong>提交 Issue 前请删除私人来源、个人词条和错误信息。</p></div>
+              <button class="button button-ghost wide-button" id="exportBackupButton">导出 JSON 备份</button>
+              <button class="button button-ghost wide-button" id="exportWordsButton">导出已启用词库 TXT</button>
+              <div class="data-facts"><span>无云端账号</span><span>无遥测</span><span>无 Cookie 读取</span></div>
+            </section>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <dialog id="sourceDialog">
+      <form method="dialog" id="sourceForm">
+        <div class="dialog-head"><div><span class="kicker">NEW SOURCE</span><h2>添加远程词库</h2></div><button value="cancel" class="icon-button" aria-label="关闭">×</button></div>
+        <label class="field"><span>名称</span><input id="sourceName" maxlength="80" placeholder="例如：社区反诈词库" required></label>
+        <label class="field"><span>TXT / JSON URL</span><input id="sourceUrl" type="url" placeholder="https://raw.githubusercontent.com/…/keywords.txt" required></label>
+        <p class="dialog-note">仅支持 HTTPS。QuietSync 只请求该域名的读取权限，且不会附带 Cookie、凭据或来源页面信息。</p>
+        <div class="dialog-actions"><button value="cancel" class="button button-ghost">取消</button><button type="submit" value="default" class="button button-primary">添加并拉取</button></div>
+      </form>
+    </dialog>
+    <dialog id="syncDialog">
+      <form method="dialog" id="syncForm">
+        <div class="dialog-head"><div><span class="kicker">SYNC PREVIEW</span><h2>确认写入 X</h2></div><button value="cancel" class="icon-button" aria-label="关闭">×</button></div>
+        <div class="sync-preview-stats"><div><strong id="previewCount">0</strong><span>新增词</span></div><div><strong id="previewTime">—</strong><span>预计用时</span></div><div><strong>ADD</strong><span>只增不删</span></div></div>
+        <div class="preview-categories" id="previewCategories"></div>
+        <div class="preview-list" id="previewList"></div>
+        <p class="dialog-note">QuietSync 将打开 X Muted words 并逐条保存。可随时从 X 页面浮窗或审核台停止；已完成部分不会回滚。</p>
+        <div class="dialog-actions"><button value="cancel" class="button button-ghost">返回审核</button><button type="button" class="button button-primary" id="confirmSyncButton">开始同步</button></div>
+      </form>
+    </dialog>
+    <div class="toast" id="toast" role="status"></div>
+    <script type="module" src="dashboard.js"></script>
+  </body>
+</html>
