@@ -22,23 +22,24 @@
 
   globalThis.__quietSyncFixture = { progress, saved, get listener() { return messageListener; } };
 
-  document.querySelector('[data-testid="addMutedWord"]').addEventListener("click", () => {
+  document.querySelector('[data-fixture="add-muted-word"]').addEventListener("click", (event) => {
+    event.preventDefault();
     const host = document.getElementById("editorHost");
     if (host.firstChild) return;
     const editor = document.createElement("section");
     editor.id = "editor";
     editor.innerHTML = `
-      <input name="keyword" aria-label="Word or phrase">
+      <input data-testid="mutedWordInput" aria-label="字词或短语">
       <label>Home timeline <span role="checkbox" aria-checked="true"></span></label>
       <label>Notifications <span role="checkbox" aria-checked="true"></span></label>
       <label>From anyone <span role="radio" aria-checked="true"></span></label>
       <label>Forever <span role="radio" aria-checked="true"></span></label>
-      <button data-testid="settingsSave">Save</button>`;
+      <button data-testid="saveMutedWord">保存</button>`;
     editor.querySelectorAll('[role="checkbox"], [role="radio"]').forEach((control) => {
       control.addEventListener("click", () => control.setAttribute("aria-checked", control.getAttribute("aria-checked") === "true" ? "false" : "true"));
     });
-    editor.querySelector('[data-testid="settingsSave"]').addEventListener("click", () => {
-      const term = editor.querySelector('input[name="keyword"]').value;
+    editor.querySelector('[data-testid="saveMutedWord"]').addEventListener("click", () => {
+      const term = editor.querySelector('[data-testid="mutedWordInput"]').value;
       if (term === "already muted") {
         let alert = editor.querySelector('[role="alert"]');
         if (!alert) {

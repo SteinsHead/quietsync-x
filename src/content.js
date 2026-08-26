@@ -1,7 +1,21 @@
 (() => {
-  const ADD_SELECTOR = '[data-testid="addMutedWord"]';
-  const INPUT_SELECTOR = 'input[name="keyword"]';
-  const SAVE_SELECTOR = '[data-testid="settingsSave"]';
+  const ADD_SELECTORS = [
+    '[data-testid="addMutedWord"]',
+    '[data-testid="addMutedKeyword"]',
+    'a[href="/settings/add_muted_keyword"]',
+    'a[href$="/settings/add_muted_keyword"]',
+    'a[href*="/settings/add_muted_keyword?"]'
+  ];
+  const INPUT_SELECTORS = [
+    'input[name="keyword"]',
+    'input[data-testid="mutedWordInput"]',
+    '[data-testid="mutedWordInput"] input'
+  ];
+  const SAVE_SELECTORS = [
+    '[data-testid="settingsSave"]',
+    '[data-testid="settingsDetailSave"]',
+    '[data-testid="saveMutedWord"]'
+  ];
   const POLL_INTERVAL = 120;
   let running = false;
   let abortRequested = false;
@@ -38,7 +52,7 @@
     await report({ event: "started", total: words.length, completed, failed, skipped });
 
     try {
-      const initialAddButton = await waitFor(ADD_SELECTOR, 15000);
+      const initialAddButton = await waitForElement(findAddButton, 15000);
       if (!initialAddButton) throw new Error("找不到 X 的添加屏蔽词按钮，请确认已登录并打开 Muted words 页面。");
 
       for (let index = 0; index < words.length; index += 1) {
@@ -124,11 +138,11 @@
   }
 
   async function addMutedWord(term, options) {
-    const addButton = await waitFor(ADD_SELECTOR, 8000);
+    const addButton = await waitForElement(findAddButton, 8000);
     if (!addButton) throw new Error("Add 按钮不可用");
     addButton.click();
 
-    const input = await waitFor(INPUT_SELECTOR, 6000);
+    const input = await waitForElement(findKeywordInput, 6000);
     if (!input) throw new Error("屏蔽词输入框未出现");
     setReactInput(input, term);
     await sleep(250);
@@ -142,7 +156,7 @@
     );
     setRadioByText(durationLabels(options.duration));
 
-    const saveButton = await waitFor(SAVE_SELECTOR, 3000);
+    const saveButton = await waitForElement(findSaveButton, 3000);
     if (!saveButton || saveButton.getAttribute("aria-disabled") === "true" || saveButton.disabled) {
       const message = readAlert() || "Save 按钮不可用，可能已存在同名屏蔽词";
       throw new Error(message);
@@ -150,7 +164,7 @@
     saveButton.click();
 
     const outcome = await waitUntil(() => {
-      if (!document.querySelector(INPUT_SELECTOR)) return { status: "closed" };
+      if (!findKeywordInput()) return { status: "closed" };
       const alert = readAlert();
       return alert ? { status: "error", message: alert } : null;
     }, 7000);
@@ -202,14 +216,14 @@
   }
 
   async function returnToList() {
-    if (!document.querySelector(INPUT_SELECTOR)) return;
+    if (!findKeywordInput()) return;
     const candidates = [...document.querySelectorAll('button, [role="button"]')];
     const cancel = candidates.find((button) => {
       const label = `${button.getAttribute("aria-label") || ""} ${button.textContent || ""}`.toLocaleLowerCase();
       return /back|close|cancel|返回|关闭|取消|關閉/.test(label);
     });
     if (cancel) cancel.click();
-    await waitUntil(() => !document.querySelector(INPUT_SELECTOR), 2500);
+    await waitUntil(() => !findKeywordInput(), 2500);
   }
 
   function readAlert() {
@@ -226,8 +240,72 @@
     return Math.round(safeBase * (0.85 + Math.random() * 0.3));
   }
 
-  function waitFor(selector, timeout) {
-    return waitUntil(() => document.querySelector(selector), timeout);
+  function findAddButton() {
+    const directMatch = firstUsableMatch(ADD_SELECTORS);
+    if (directMatch) return directMatch;
+
+    const controls = document.querySelectorAll('main a, main button, main [role="button"], main [role="link"]');
+    return [...controls].find((control) => {
+      if (!isUsable(control)) return false;
+      const label = controlLabel(control);
+      return /add.*(muted|mute)|(?:muted|mute).*(?:word|keyword).*add|添加.*(?:屏蔽|隐藏|隱藏|靜音)|新增.*(?:屏蔽|靜音)|追加.*ミュート/i.test(label)
+        || /^[+＋]$/.test(label);
+    }) || null;
+  }
+
+  function findKeywordInput() {
+    const directMatch = firstUsableMatch(INPUT_SELECTORS);
+    if (directMatch) return directMatch;
+
+    const scope = document.querySelector('[role="dialog"]') || document.querySelector("main");
+    if (!scope) return null;
+    const inputs = scope.querySelectorAll('input:not([type]), input[type="text"]');
+    return [...inputs].find((input) => {
+      if (!isUsable(input)) return false;
+      const label = controlLabel(input);
+      return !/search|搜索|搜尋|検索/.test(label);
+    }) || null;
+  }
+
+  function findSaveButton() {
+    const directMatch = firstUsableMatch(SAVE_SELECTORS);
+    if (directMatch) return directMatch;
+
+    const input = findKeywordInput();
+    const scope = input?.closest('[role="dialog"]') || input?.closest("main") || document.querySelector("main");
+    if (!scope) return null;
+    const controls = scope.querySelectorAll('button, [role="button"]');
+    return [...controls].find((control) => {
+      if (!isUsable(control)) return false;
+      return /^(save|保存|儲存|存储|儲存する)$/.test(controlLabel(control));
+    }) || null;
+  }
+
+  function firstUsableMatch(selectors) {
+    for (const selector of selectors) {
+      const matches = document.querySelectorAll(selector);
+      const match = [...matches].find(isUsable);
+      if (match) return match;
+    }
+    return null;
+  }
+
+  function isUsable(element) {
+    if (!element || element.closest("#quietsync-hud")) return false;
+    if (element.disabled || element.getAttribute("aria-disabled") === "true") return false;
+    const style = getComputedStyle(element);
+    return style.display !== "none" && style.visibility !== "hidden" && element.getClientRects().length > 0;
+  }
+
+  function controlLabel(element) {
+    return `${element.getAttribute("aria-label") || ""} ${element.getAttribute("title") || ""} ${element.textContent || ""}`
+      .trim()
+      .replace(/\s+/g, " ")
+      .toLocaleLowerCase();
+  }
+
+  function waitForElement(find, timeout) {
+    return waitUntil(find, timeout);
   }
 
   async function waitUntil(check, timeout) {

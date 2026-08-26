@@ -9,20 +9,20 @@
       main { width: 600px; min-height: 100vh; margin: auto; padding: 36px; border-inline: 1px solid #2f3336; }
       header { display: flex; align-items: center; justify-content: space-between; }
       button { padding: 10px 14px; border: 0; border-radius: 20px; font: inherit; cursor: pointer; }
-      [data-testid="addMutedWord"] { color: #fff; background: #1d9bf0; }
+      [data-fixture="add-muted-word"] { color: #fff; background: #1d9bf0; text-decoration: none; }
       #editor { display: grid; gap: 16px; margin-top: 24px; padding: 22px; border: 1px solid #2f3336; border-radius: 18px; }
       input { padding: 12px; border: 1px solid #536471; border-radius: 8px; color: #fff; background: #16181c; }
       label { display: flex; align-items: center; justify-content: space-between; }
       [role="checkbox"], [role="radio"] { width: 18px; height: 18px; border: 2px solid #536471; border-radius: 4px; }
       [role="radio"] { border-radius: 50%; }
       [aria-checked="true"] { border-color: #1d9bf0; background: #1d9bf0; }
-      [data-testid="settingsSave"] { color: #000; background: #eff3f4; }
+      [data-testid="saveMutedWord"] { color: #000; background: #eff3f4; }
       .result { margin-top: 24px; color: #8b98a5; }
     </style>
   </head>
   <body>
     <main>
-      <header><div><small>Settings / Privacy and safety</small><h1>Muted words</h1></div><button data-testid="addMutedWord">＋</button></header>
+      <header><div><small>设置 / 隐私和安全</small><h1>已隐藏的字词</h1></div><a data-fixture="add-muted-word" href="/settings/add_muted_keyword" aria-label="添加屏蔽的字词">＋</a></header>
       <div id="editorHost"></div>
       <div class="result"><strong>Fixture result</strong><p data-testid="fixture-status">running</p><ol data-testid="fixture-saved"></ol></div>
     </main>

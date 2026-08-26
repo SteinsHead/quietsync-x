@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.3.1 — 2026-08-26
+
+- Fixed the false “Add button not found” error on X's current Muted words page.
+- Added compatibility with X's route-based add control and newer input/save identifiers.
+- Added language-tolerant fallbacks for Chinese, English, Traditional Chinese, and Japanese interfaces.
+- Updated the browser fixture to mirror the current Chinese X settings flow.
+
 ## 0.3.0 — 2026-08-26
 
 - Added the complete QuietSync product identity, Chrome icon set, and polished dashboard/popup design.
